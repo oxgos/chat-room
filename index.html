@@ -50,12 +50,14 @@
         var sendBtn = document.getElementById('sendBtn');
         var msg = document.getElementById('message');
         var count = document.getElementById('count');
-    
+        
+        // 登陆后
         loginBtn.onclick = function () {
             wrapper.style.display = 'none';
             text.style.display = 'block';
             show.style.display = 'block';
-
+            
+            // 连接后台服务器
             var socket = io('http://localhost:3000?username=' + username.value);
             
             // 显示在线人数
@@ -64,11 +66,16 @@
             })
 
             sendBtn.onclick = function () {
+                // 发送信息
                 socket.emit('sendMsg', msg.value);
             }
+            
+            // 接收收返回信息
             socket.on('resMsg', function (data) {
                 createText(data, 'right', 'green');
             })
+            
+            // 接收广播信息
             socket.on('resBroad', function (data) {
                 createText(data, 'red');
             })
