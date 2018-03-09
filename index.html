@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        #show {
+            display: none;
+        }
+        #text {
+            display: none;
+            border: 1px solid #000;
+            width: 200px;
+        }
+        #message {
+            height: 15px;
+            width: 76%;
+        }
+        #content {
+            height: 500px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <form id="loginWrapper">
+        <fieldset>
+            <legend>登陆信息</legend>
+            用户名：<input id="username" type="text" />
+            <button id="loginBtn" type="button">login</button>
+        </fieldset>
+    </form>
+    <h5 id="show">聊天室在线人数: <span id="count">0</span>人</h5>
+    <div id="text">
+        <div id="content"></div>
+        <div id="btn">
+            <input id="message" type="text"><button id="sendBtn" type="button">发送</button>
+        </div>
+    </div>
+
+    <script src="socket.io.js"></script>
+    <script>
+        var username = document.getElementById('username');
+        var loginBtn = document.getElementById('loginBtn');
+        var wrapper = document.getElementById('loginWrapper');
+        var text = document.getElementById('text');
+        var show = document.getElementById('show');
+        var sendBtn = document.getElementById('sendBtn');
+        var msg = document.getElementById('message');
+        var count = document.getElementById('count');
+    
+        loginBtn.onclick = function () {
+            wrapper.style.display = 'none';
+            text.style.display = 'block';
+            show.style.display = 'block';
+
+            var socket = io('http://localhost:3000?username=' + username.value);
+            
+            // 显示在线人数
+            socket.on('chat num', function (data) {
+                count.innerHTML = data;
+            })
+
+            sendBtn.onclick = function () {
+                socket.emit('sendMsg', msg.value);
+            }
+            socket.on('resMsg', function (data) {
+                createText(data, 'right', 'green');
+            })
+            socket.on('resBroad', function (data) {
+                createText(data, 'red');
+            })
+        }
+
+        function createText(data, pos, color, ) {
+            var content = document.getElementById('content');
+            var p = document.createElement('p');
+            if (arguments.length === 2) {
+                color = pos;
+                pos = null;
+                p.style.color = color;
+            } else if(arguments.length === 3) {
+                p.style.textAlign = pos;
+                p.style.color = color;
+            }
+            p.innerHTML = data;
+            content.appendChild(p);
+        }
+        /* var socket = io('http://localhost:3000?username=gjw');
+        var btn = document.getElementById('btn');
+        btn.onclick = function() {
+            socket.emit('chat', 'hello');
+        }
+        socket.on('chat', function(msg) {
+            console.log(msg)
+        }) */
+        // var socket;
+        // var test = document.getElementById('test');
+        // var btn = document.getElementById('btn');
+        // var conn = document.getElementById('conn');
+        // var disconn = document.getElementById('disconn');
+        // conn.onclick = function() {
+        //     socket = new WebSocket('ws://echo.websocket.org');
+        //     socket.onopen = function(e) {
+        //         writeToScreen('connected');
+        //     }
+        //     socket.onclose = function(e) {
+        //         writeToScreen('disconnected');
+        //     }
+        //     socket.onmessage = function(e) {
+        //         writeToScreen('Response: ' + e.data);
+        //     }
+        //     socket.onerror = function(e) {
+        //         writeToScreen('Response: ' + e.data);
+        //     }
+        //     btn.onclick = function() {
+        //         var text = document.getElementById('text');
+        //         socket.send(text.value);
+        //     }
+        //     disconn.onclick = function() {
+        //         socket.close();
+        //     }
+        // }
+
+        // function writeToScreen(text) {
+        //     var p = document.createElement('p');
+        //     p.innerHTML = text
+        //     test.appendChild(p);
+        // }
+    </script>
+</body>
+</html>
